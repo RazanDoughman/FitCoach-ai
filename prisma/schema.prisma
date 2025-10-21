@@ -1,0 +1,133 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int              @id @default(autoincrement())
+  name          String
+  email         String   @unique
+  password      String
+  preferences   String?
+  goals         String?
+  equipment     String?
+  dietaryInfo   String?
+  createdAt     DateTime @default(now())
+
+  savedExercises  SavedExercise[]
+  workoutTemplates WorkoutTemplate[]
+  workoutLogs      WorkoutLog[]
+  progressLogs     ProgressLog[]
+  nutritionLogs    NutritionLog[]
+}
+
+model Exercise {
+  id           Int    @id @default(autoincrement())
+  name         String
+  gifUrl       String?
+  bodyPart     String?
+  equipment    String?
+  target       String?
+  instructions String?
+
+  savedByUsers    SavedExercise[]
+  templateExercises TemplateExercise[]
+  loggedExercises   LoggedExercise[]
+}
+
+model SavedExercise {
+  id         Int      @id @default(autoincrement())
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int
+
+  exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  exerciseId Int
+}
+
+model WorkoutTemplate {
+  id          Int      @id @default(autoincrement())
+  name        String
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+
+  exercises   TemplateExercise[]
+}
+
+model TemplateExercise {
+  id               Int             @id @default(autoincrement())
+
+  workoutTemplate  WorkoutTemplate @relation(fields: [workoutTemplateId], references: [id], onDelete: Cascade)
+  workoutTemplateId Int
+
+  exercise         Exercise        @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  exerciseId       Int
+
+  sets             Int
+  reps             Int
+  restTime         Int
+}
+
+model WorkoutLog {
+  id           Int             @id @default(autoincrement())
+  date         DateTime        @default(now())
+
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       Int
+
+  loggedExercises LoggedExercise[]
+}
+
+model LoggedExercise {
+  id           Int          @id @default(autoincrement())
+
+  workoutLog   WorkoutLog   @relation(fields: [workoutLogId], references: [id], onDelete: Cascade)
+  workoutLogId Int
+
+  exercise     Exercise     @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  exerciseId   Int
+
+  sets         LoggedSet[]
+}
+
+model LoggedSet {
+  id              Int            @id @default(autoincrement())
+
+  loggedExercise  LoggedExercise @relation(fields: [loggedExerciseId], references: [id], onDelete: Cascade)
+  loggedExerciseId Int
+
+  reps            Int
+  weight          Float
+}
+
+model ProgressLog {
+  id         Int      @id @default(autoincrement())
+  date       DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int
+
+  weight     Float?
+  chest      Float?
+  waist      Float?
+  hips       Float?
+  photoUrl   String?
+}
+
+model NutritionLog {
+  id        Int      @id @default(autoincrement())
+  date      DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+
+  calories  Int?
+  protein   Float?
+  carbs     Float?
+  fat       Float?
+}
