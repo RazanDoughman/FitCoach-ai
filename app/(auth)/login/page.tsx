@@ -23,9 +23,9 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-black">
       <form onSubmit={handleSubmit} className="p-8 bg-white shadow-lg rounded-xl w-96">
-        <h1 className="text-2xl font-bold mb-6 text-center">Sign In</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center text-black">Sign In</h1>
         <input
           type="email"
           placeholder="Email"
@@ -42,7 +42,7 @@ export default function LoginPage() {
         <button type="submit" className="w-full bg-blue-500 text-white p-3 rounded hover:bg-blue-600">
           Login
         </button>
-        <p className="text-sm text-center mt-4">
+        <p className="text-sm text-center mt-4 text-black">
           Don’t have an account?{" "}
           <a href="/register" className="text-blue-600 font-medium">
             Create one
