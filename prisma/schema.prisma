@@ -52,7 +52,7 @@ model SavedExercise {
 model WorkoutTemplate {
   id          Int      @id @default(autoincrement())
   name        String
-
+  notes    String?
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      Int
 
