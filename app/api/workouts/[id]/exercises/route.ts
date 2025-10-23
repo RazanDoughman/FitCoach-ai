@@ -13,12 +13,13 @@ const addSchema = z.object({
   })).min(1)
 });
 
+
 export async function GET(
-  _req: NextRequest,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: { id: string } }
 ) {
   const session = await requireSession();
-  const templateId = Number(params.id);
+  const templateId = Number(context.params.id);
 
   // Ensure template belongs to user
   const { data: tmpl, error: te } = await supabase
@@ -41,10 +42,10 @@ export async function GET(
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+  context: { params: { id: string } }
+) { 
   const session = await requireSession();
-  const templateId = Number(params.id);
+  const templateId = Number(context.params.id);
   const body = await req.json();
   const parsed = addSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Invalid payload" }, { status: 400 });

@@ -27,10 +27,16 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json();
 
-  const row = { 
-    ...body, 
-    userEmail: session.user!.email!,
-    userId: session.user.id,
+   const row = {
+      name: body.name,
+      notes: body.notes,
+      goal: body.goal,
+      duration: body.duration,
+      equipment: body.equipment,
+      targetMuscles: body.targetMuscles,
+      userEmail: session.user.email,
+      userId: session.user.id,
+      createdAt: new Date().toISOString(),
     };
 
   const { data, error } = await supabase
@@ -39,6 +45,11 @@ export async function POST(req: NextRequest) {
   select()
   .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(data);
+  if (error) {
+    console.error("Supabase insert error:", error.message);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  console.log("Workout saved successfully:", data);
+  return NextResponse.json(data, { status: 201 });
 }

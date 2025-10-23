@@ -1,3 +1,5 @@
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
 export async function fetchExercisesFromAPI(params: {
   limit?: number; bodyPart?: string; equipment?: string; target?: string; name?: string;
 }) {
@@ -36,48 +38,78 @@ export async function nutritionNatural(text: string) {
 }
 
 export async function aiGenerateWorkout(payload: {
-  goal:string; level:string; daysPerWeek:number; sessionMinutes:number; equipment:string[]; targetMuscles:string[];
+  goal: string;
+  level: string;
+  daysPerWeek: number;
+  sessionMinutes: number;
+  equipment: string[];
+  targetMuscles: string[];
 }) {
   const apiKey = process.env.GOOGLE_API_KEY!;
   const model = "models/gemini-2.5-flash";
   const url = `https://generativelanguage.googleapis.com/v1/${model}:generateContent?key=${apiKey}`;
 
-  console.log("AI key exists:", !!apiKey);  
+  console.log("AI key exists:", !!apiKey);
+
   const prompt = `
-You are a certified coach. Create a ${payload.level} ${payload.goal} plan,
-days/week: ${payload.daysPerWeek}, session length: ${payload.sessionMinutes} min,
-equipment: ${payload.equipment.join(", ") || "bodyweight"},
-targets: ${payload.targetMuscles.join(", ") || "balanced"}.
-Return JSON: { days: [ { day, blocks: [ { name, exercises: [ { name, sets, reps, restSec, notes } ] } ] } ] }`;
+You are a certified personal trainer.
+Create a structured workout plan for this user:
+
+- Goal: ${payload.goal}
+- Fitness Level: ${payload.level}
+- Duration: ${payload.sessionMinutes} minutes
+- Equipment: ${payload.equipment.join(", ") || "none"}
+- Target Muscles: ${payload.targetMuscles.join(", ") || "full body"}
+
+Generate 5–7 exercises with:
+• exercise name
+• sets
+• reps
+• rest (in seconds)
+
+Return ONLY valid JSON like this:
+[
+  { "exercise": "Push-ups", "sets": 3, "reps": 12, "rest": 60 },
+  { "exercise": "Dumbbell Rows", "sets": 3, "reps": 10, "rest": 90 }
+]
+`;
 
   const body = { contents: [{ parts: [{ text: prompt }]}] };
 
   try {
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });  
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
 
-  const data = await res.json();
-  console.log("AI raw data:", JSON.stringify(data, null, 2));
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}";
-  console.log("AI raw text:", text);
+    const data = await res.json();
+    console.log("AI raw data:", JSON.stringify(data, null, 2));
 
-  const jsonStart = text.indexOf("{");
-    const jsonEnd = text.lastIndexOf("}");
-    const jsonText = text.slice(jsonStart, jsonEnd + 1);
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}";
+    console.log("AI raw text:", text);
 
-    const parsed = JSON.parse(jsonText);
-    return parsed;
-    } catch (err) {
-  console.error("AI generation error:", err);
-  if (err instanceof Error) {
-    return { error: "Failed to generate workout", details: err.message };
+    const cleanText = text
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+
+    try {
+      return JSON.parse(cleanText);
+    } catch {
+      const jsonMatch = cleanText.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
+      if (jsonMatch) return JSON.parse(jsonMatch[0]);
+      throw new Error("Failed to parse AI JSON output");
+    }
+  } catch (err) {
+    console.error("AI generation error:", err);
+    if (err instanceof Error) {
+      return { error: err.message };
+    }
+    return { error: "Unknown AI generation error" };
   }
-  return { error: "Failed to generate workout", details: String(err) };
 }
-}
+
 
 
 

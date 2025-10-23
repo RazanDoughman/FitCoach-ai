@@ -13,7 +13,7 @@ async function main() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [
-            { parts: [{ text: 'Give me 3 quick workout motivation tips.' }] },
+            { parts: [{ text: 'Generate 5 short exercises for a 30-minute upper-body workout. Return only exercise names as a bullet list.' }] },
           ],
         }),
       }

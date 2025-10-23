@@ -17,6 +17,7 @@ model User {
   equipment     String?
   dietaryInfo   String?
   createdAt     DateTime @default(now())
+  isOnboarded  Boolean  @default(false)
 
   savedExercises  SavedExercise[]
   workoutTemplates WorkoutTemplate[]
@@ -55,6 +56,11 @@ model WorkoutTemplate {
   notes    String?
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      Int
+  goal           String?
+  duration       Int?
+  equipment      String?
+  targetMuscles  String?
+  createdAt      DateTime          @default(now())
 
   exercises   TemplateExercise[]
 }
@@ -66,6 +72,7 @@ model TemplateExercise {
   workoutTemplateId Int
 
   exercise         Exercise        @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  exerciseName     String
   exerciseId       Int
 
   sets             Int
