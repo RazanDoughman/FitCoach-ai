@@ -18,16 +18,25 @@ export default function RegisterPage() {
 
     try {
       const hashedPassword = await hashPassword(formData.password);
-      const { error } = await supabase.from("User").insert([
+      const { data, error } = await supabase
+      .from("User")
+      .insert([
         { name: formData.name, email: formData.email, password: hashedPassword },
-      ]);
-      if (error) throw error;
+      ])
+      .select("id, name, email")
+      .single();
+
+    if (error) throw error;
+
+    if (data) {
       localStorage.setItem(
         "user",
-        JSON.stringify({ email: formData.email, name: formData.name })
+        JSON.stringify({ id: data.id, name: data.name, email: data.email })
       );
       window.dispatchEvent(new Event("authChange"));
       router.push("/onboarding");
+    }
+
     } catch (err) {
       if (err instanceof Error) setError(err.message);
       else setError("An unexpected error occurred");

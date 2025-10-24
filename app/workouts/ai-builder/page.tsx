@@ -9,6 +9,7 @@ type AIExercise = {
   sets?: number;
   reps?: number;
   rest?: number;
+  weight?: string | number;
 };
 
 
@@ -96,10 +97,10 @@ export default function AIWorkoutBuilderPage() {
     const data = await res.json();
 
     if (res.ok) {
-      alert("✅ Workout template saved successfully!");
+      alert(" Workout template saved successfully!");
       setResult([]); // Close modal after saving
     } else {
-      alert(`❌ Failed to save: ${data.error}`);
+      alert(` Failed to save: ${data.error}`);
     }
   } catch (err) {
     console.error("Error saving workout:", err);
@@ -278,6 +279,17 @@ export default function AIWorkoutBuilderPage() {
                     <p><strong>Sets:</strong> {exercise.sets}</p>
                     <p><strong>Reps:</strong> {exercise.reps}</p>
                     <p><strong>Rest:</strong> {exercise.rest}s</p>
+                    {exercise.weight && (
+                      <p>
+                        <strong>Weight:</strong>{" "}
+                        <span className="text-green-600 font-semibold">
+                          {typeof exercise.weight === "number"
+                            ? `${exercise.weight} kg`
+                            : exercise.weight}
+                        </span>
+                      </p>
+                    )}
+                    
                   </div>
                 </div>
               ))}

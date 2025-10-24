@@ -9,6 +9,7 @@ interface Exercise {
   sets?: number;
   reps?: number;
   rest?: number;
+  weight?: string | number; // ✅ added weight field
 }
 
 interface WorkoutTemplate {
@@ -19,7 +20,7 @@ interface WorkoutTemplate {
   equipment?: string;
   targetMuscles?: string;
   createdAt: string;
-  notes?: string; // JSON string of exercises
+  notes?: string;
 }
 
 /* ---------------------------- VIEW MODAL ---------------------------- */
@@ -32,7 +33,6 @@ function WorkoutViewModal({
 }) {
   if (!workout) return null;
 
-  // Parse the saved exercises (from workout.notes)
   let exercises: Exercise[] = [];
   try {
     exercises = JSON.parse(workout.notes || "[]");
@@ -43,12 +43,12 @@ function WorkoutViewModal({
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl border border-amber-400 shadow-xl p-6 max-w-lg w-full">
-        {/* 🔹 Title */}
+        {/* Title */}
         <h2 className="text-2xl font-bold text-gray-900 mb-4 text-center">
           {workout.name}
         </h2>
 
-        {/* 🔹 Basic Info */}
+        {/* Basic Info */}
         <div className="space-y-1 text-gray-700 mb-4 text-sm">
           <p><strong>Goal:</strong> {workout.goal || "—"}</p>
           <p><strong>Duration:</strong> {workout.duration ? `${workout.duration} mins` : "—"}</p>
@@ -56,7 +56,7 @@ function WorkoutViewModal({
           <p><strong>Target Muscles:</strong> {workout.targetMuscles || "—"}</p>
         </div>
 
-        {/* 🔹 Exercises */}
+        {/* Exercises */}
         <h3 className="font-semibold text-lg mb-3 text-gray-800">Exercises:</h3>
         <div className="max-h-64 overflow-y-auto space-y-3">
           {exercises.length > 0 ? (
@@ -69,7 +69,17 @@ function WorkoutViewModal({
                 <p className="text-sm text-gray-600 mt-1">
                   <strong>Sets:</strong> {ex.sets || "—"} &nbsp;&nbsp;
                   <strong>Reps:</strong> {ex.reps || "—"} &nbsp;&nbsp;
-                  <strong>Rest:</strong> {ex.rest ? `${ex.rest}s` : "—"}
+                  <strong>Rest:</strong> {ex.rest ? `${ex.rest}s` : "—"} &nbsp;&nbsp;
+                  {ex.weight && (
+                    <>
+                      <strong>Weight:</strong>{" "}
+                      <span className="text-green-600 font-semibold">
+                        {typeof ex.weight === "number"
+                          ? `${ex.weight} kg`
+                          : ex.weight}
+                      </span>
+                    </>
+                  )}
                 </p>
               </div>
             ))
@@ -78,7 +88,7 @@ function WorkoutViewModal({
           )}
         </div>
 
-        {/* 🔹 Close Button */}
+        {/* Close Button */}
         <div className="flex justify-center mt-6">
           <button
             onClick={onClose}
@@ -92,14 +102,11 @@ function WorkoutViewModal({
   );
 }
 
-
 /* ---------------------------- MAIN PAGE ---------------------------- */
 export default function MyWorkoutsPage() {
   const [workouts, setWorkouts] = useState<WorkoutTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedWorkout, setSelectedWorkout] =
-    useState<WorkoutTemplate | null>(null);
-  const [editingWorkout, setEditingWorkout] =
     useState<WorkoutTemplate | null>(null);
 
   useEffect(() => {
@@ -129,13 +136,6 @@ export default function MyWorkoutsPage() {
     }
   }
 
-  async function refreshWorkouts() {
-    const res = await fetch("/api/workouts");
-    const data = await res.json();
-    setWorkouts(data);
-    setEditingWorkout(null);
-  }
-
   return (
     <motion.div
       className="relative min-h-screen flex flex-col items-center justify-start px-6 py-28 overflow-hidden"
@@ -143,14 +143,14 @@ export default function MyWorkoutsPage() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      {/* 🖼️ Background */}
+      {/* Background */}
       <div
         className="absolute inset-0 bg-cover bg-center -z-20"
         style={{ backgroundImage: "url('/background4.jpg')" }}
       />
       <div className="absolute inset-0 bg-black/70 -z-10" />
 
-      {/* 🔹 Header */}
+      {/* Header */}
       <div className="text-center text-white mb-12">
         <h1 className="text-3xl font-bold mb-2">My Workouts</h1>
         <p className="text-gray-300 text-sm">
@@ -158,7 +158,7 @@ export default function MyWorkoutsPage() {
         </p>
       </div>
 
-      {/* 🔹 Workouts List */}
+      {/* Workouts List */}
       {loading ? (
         <p className="text-gray-300">Loading your workouts...</p>
       ) : workouts.length === 0 ? (
@@ -216,14 +216,12 @@ export default function MyWorkoutsPage() {
         </div>
       )}
 
-      {/* 🔹 Modals */}
       {selectedWorkout && (
         <WorkoutViewModal
           workout={selectedWorkout}
           onClose={() => setSelectedWorkout(null)}
         />
       )}
-
     </motion.div>
   );
 }

@@ -17,8 +17,6 @@ export async function POST(req: NextRequest) {
       { status: 429 }
     );
   }
-
-
   const payload = await req.json();
   const parsed = aiGenerateSchema.safeParse(payload);
   if (!parsed.success) return NextResponse.json({ error: "Invalid payload" }, { status: 400 });

@@ -25,7 +25,7 @@ export default function DashboardPage() {
       desc: "View your next session and start training",
       icon: "bi-lightning",
       color: "border-blue-500 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)]",
-      link: "/active-workout",
+      link: "workouts/active-workout",
       button: "Start Workout",
     },
     {
@@ -33,7 +33,7 @@ export default function DashboardPage() {
       desc: "See what’s coming next on your schedule",
       icon: "bi-calendar-event",
       color: "border-green-400 hover:shadow-[0_0_20px_rgba(74,222,128,0.4)]",
-      link: "/calendar",
+      link: "workouts/calendar",
       button: "Open Calendar",
     },
   ];
@@ -41,7 +41,7 @@ export default function DashboardPage() {
 
   const quickActions = [
     
-    { name: "AI Builder", href: "/ai" },
+    { name: "AI Builder", href: "workouts/ai-builder" },
     { name: "Exercises", href: "/exercises" },
     { name: "Nutrition", href: "/nutrition" },
   ];

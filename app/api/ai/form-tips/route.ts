@@ -1,22 +1,18 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { aiFormTips } from "@/lib/external";
-import { rateLimit } from "@/lib/rateLimit";
-import { clientKey, requireSession } from "@/lib/auth-helpers";
 
-export async function POST(req: NextRequest) {
-  await requireSession();
-  const rl = rateLimit("ai-tips:" + clientKey(req), 10, 60_000);
-  if (!rl.ok) {
-    return NextResponse.json(
-      { 
-        error: "You’ve reached your limit of 10 AI requests per minute. Please wait a moment and try again." 
-      },
-      { status: 429 }
-    );
+export async function POST(req: Request) {
+  try {
+    const { exerciseName, question } = await req.json();
+
+    if (!exerciseName || !question) {
+      return NextResponse.json({ error: "Missing input" }, { status: 400 });
+    }
+
+    const answer = await aiFormTips(exerciseName, question);
+    return NextResponse.json({ answer });
+  } catch (err) {
+    console.error("Form Tips API Error:", err);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
-
-  const { exerciseName } = await req.json();
-  if (!exerciseName) return NextResponse.json({ error: "exerciseName required" }, { status: 400 });
-  const tips = await aiFormTips(exerciseName);
-  return NextResponse.json(tips);
 }

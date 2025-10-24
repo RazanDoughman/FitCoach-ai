@@ -16,16 +16,18 @@ export default function LoginPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+
     const res = await signIn("credentials", {
       redirect: false,
       email: formData.email,
       password: formData.password,
     });
+
     if (res?.error) setError(res.error);
     else {
        const { data, error } = await supabase
       .from("User")
-      .select("name, email")
+      .select("id,name, email")
       .eq("email", formData.email)
       .single()
 
@@ -33,6 +35,7 @@ export default function LoginPage() {
       localStorage.setItem(
         "user",
         JSON.stringify({
+          id: data.id,  
           email: data.email,
           name: data.name || "Athlete",
         })

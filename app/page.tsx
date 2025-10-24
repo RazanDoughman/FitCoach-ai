@@ -136,7 +136,7 @@ export default function LandingPage() {
             motivational insights, and smarter training adjustments.
           </motion.p>
           <Link
-            href="/ai-builder"
+            href="register"
             className="bg-accent hover:bg-amber-600 text-black px-6 py-3 rounded-lg transition-all font-semibold"
           >
             Try the AI Builder

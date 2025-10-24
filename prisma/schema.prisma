@@ -8,133 +8,146 @@ datasource db {
 }
 
 model User {
-  id            Int              @id @default(autoincrement())
-  name          String
-  email         String   @unique
-  password      String
-  preferences   String?
-  goals         String?
-  equipment     String?
-  dietaryInfo   String?
-  createdAt     DateTime @default(now())
-  isOnboarded  Boolean  @default(false)
-
-  savedExercises  SavedExercise[]
-  workoutTemplates WorkoutTemplate[]
-  workoutLogs      WorkoutLog[]
-  progressLogs     ProgressLog[]
+  id               Int               @id @default(autoincrement())
+  name             String
+  email            String            @unique
+  password         String
+  preferences      String?
+  goals            String?
+  equipment        String?
+  dietaryInfo      String?
+  createdAt        DateTime?         @default(now()) @db.Timestamp(6)
+  isOnboarded      Boolean?          @default(false)
   nutritionLogs    NutritionLog[]
+  progressLogs     ProgressLog[]
+  savedExercises   SavedExercise[]
+  workoutLogs      WorkoutLog[]
+  workoutSchedules WorkoutSchedule[]
+  workoutTemplates WorkoutTemplate[]
 }
 
 model Exercise {
-  id           Int    @id @default(autoincrement())
-  name         String
-  gifUrl       String?
-  bodyPart     String?
-  equipment    String?
-  target       String?
-  instructions String?
-
-  savedByUsers    SavedExercise[]
-  templateExercises TemplateExercise[]
+  id                Int                @id @default(autoincrement())
+  name              String             @unique(map: "exercise_name_unique")
+  gifUrl            String?
+  bodyPart          String?
+  equipment         String?
+  target            String?
+  instructions      String?
   loggedExercises   LoggedExercise[]
+  savedByUsers      SavedExercise[]
+  templateExercises TemplateExercise[]
+
+  @@index([bodyPart], map: "exercise_bodypart_idx")
+  @@index([equipment], map: "exercise_equipment_idx")
+  @@index([target], map: "exercise_target_idx")
 }
 
 model SavedExercise {
-  id         Int      @id @default(autoincrement())
-
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     Int
-
-  exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
-  exerciseId Int
+  id         Int       @id @default(autoincrement())
+  userId     Int?
+  exerciseId Int?
+  exercise   Exercise? @relation(fields: [exerciseId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "SavedExercise_exerciseid_fkey")
+  user       User?     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "SavedExercise_userid_fkey")
 }
 
 model WorkoutTemplate {
-  id          Int      @id @default(autoincrement())
-  name        String
-  notes    String?
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  goal           String?
-  duration       Int?
-  equipment      String?
-  targetMuscles  String?
-  createdAt      DateTime          @default(now())
+  id               Int                @id @default(autoincrement())
+  name             String
+  userId           Int?
+  notes            String?
+  userEmail        String?
+  goal             String?
+  duration         Int?
+  equipment        String?
+  targetMuscles    String?
+  createdAt        DateTime?          @default(now()) @db.Timestamp(6)
+  exercises        TemplateExercise[]
+  workoutSchedules WorkoutSchedule[]
+  user             User?              @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "WorkoutTemplate_userid_fkey")
+}
 
-  exercises   TemplateExercise[]
+model WorkoutSchedule {
+  id        Int              @id @default(autoincrement())
+  userId    Int?
+  workoutId Int?
+  date      DateTime?        @db.Timestamp(6)
+  status    String?          @default("upcoming")
+  color      String?          @default("#3B82F6") 
+  note      String?
+  user      User?            @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  workout   WorkoutTemplate? @relation(fields: [workoutId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([userId])
+  @@index([date])
 }
 
 model TemplateExercise {
-  id               Int             @id @default(autoincrement())
-
-  workoutTemplate  WorkoutTemplate @relation(fields: [workoutTemplateId], references: [id], onDelete: Cascade)
-  workoutTemplateId Int
-
-  exercise         Exercise        @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
-  exerciseName     String
-  exerciseId       Int
-
-  sets             Int
-  reps             Int
-  restTime         Int
+  id                Int              @id @default(autoincrement())
+  workoutTemplateId Int?
+  exerciseId        Int?
+  sets              Int
+  reps              Int
+  restTime          Int?
+  exercise          Exercise?        @relation(fields: [exerciseId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "TemplateExercise_exerciseid_fkey")
+  workoutTemplate   WorkoutTemplate? @relation(fields: [workoutTemplateId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "TemplateExercise_workouttemplateid_fkey")
 }
 
 model WorkoutLog {
-  id           Int             @id @default(autoincrement())
-  date         DateTime        @default(now())
-
-  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId       Int
-
+  id              Int              @id @default(autoincrement())
+  userId          Int?
+  date            DateTime?        @default(now()) @db.Timestamp(6)
+  userEmail       String?
+  templateId      Int?
+  startedAt       DateTime?        @default(now()) @db.Timestamp(6)
+  durationMin     Int?
+  notes           String?
   loggedExercises LoggedExercise[]
+  user            User?            @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "WorkoutLog_userid_fkey")
 }
 
 model LoggedExercise {
-  id           Int          @id @default(autoincrement())
-
-  workoutLog   WorkoutLog   @relation(fields: [workoutLogId], references: [id], onDelete: Cascade)
-  workoutLogId Int
-
-  exercise     Exercise     @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
-  exerciseId   Int
-
+  id           Int         @id @default(autoincrement())
+  workoutLogId Int?
+  exerciseId   Int?
+  exercise     Exercise?   @relation(fields: [exerciseId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "LoggedExercise_exerciseid_fkey")
+  workoutLog   WorkoutLog? @relation(fields: [workoutLogId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "LoggedExercise_workoutlogid_fkey")
   sets         LoggedSet[]
 }
 
 model LoggedSet {
-  id              Int            @id @default(autoincrement())
-
-  loggedExercise  LoggedExercise @relation(fields: [loggedExerciseId], references: [id], onDelete: Cascade)
-  loggedExerciseId Int
-
-  reps            Int
-  weight          Float
+  id               Int             @id @default(autoincrement())
+  loggedExerciseId Int?
+  reps             Int
+  weight           Float?
+  loggedExercise   LoggedExercise? @relation(fields: [loggedExerciseId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "LoggedSet_loggedexerciseid_fkey")
 }
 
 model ProgressLog {
-  id         Int      @id @default(autoincrement())
-  date       DateTime @default(now())
-
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     Int
-
+  id         Int       @id @default(autoincrement())
+  userId     Int?
   weight     Float?
   chest      Float?
   waist      Float?
   hips       Float?
   photoUrl   String?
+  date       DateTime? @default(now()) @db.Timestamp(6)
+  userEmail  String?
+  bodyFatPct Float?
+  weightKg   Float?
+  user       User?     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "ProgressLog_userid_fkey")
 }
 
 model NutritionLog {
-  id        Int      @id @default(autoincrement())
-  date      DateTime @default(now())
-
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    Int
-
+  id        Int       @id @default(autoincrement())
+  userId    Int?
+  date      DateTime? @default(now()) @db.Timestamp(6)
   calories  Int?
   protein   Float?
   carbs     Float?
   fat       Float?
+  food      String?
+  userEmail String?
+  loggedAt  DateTime? @default(now()) @db.Timestamp(6)
+  user      User?     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "NutritionLog_userid_fkey")
 }
