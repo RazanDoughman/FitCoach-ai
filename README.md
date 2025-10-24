@@ -83,3 +83,35 @@ Before running the project, create a .env file in the root directory.
 
 
 ---
+
+## Database Setup
+
+The project uses **Supabase (PostgreSQL)** as its production database, managed through **Prisma ORM**.
+
+All database models are defined in `prisma/schema.prisma`, and the database schema was created and synchronized using Prisma’s `db push` command throughout development.  
+As a result, the database structure in Supabase is fully up-to-date and matches the Prisma schema, although no local migration history exists.
+
+### Database Models
+The schema includes the following core models:
+- **User** – Stores user information, authentication data, and role references.  
+- **Exercise** – Cached exercise data from the API (id, name, gifUrl, bodyPart, equipment, target, instructions).  
+- **SavedExercise** – Tracks users’ favorite or bookmarked exercises.  
+- **WorkoutTemplate** – User-created workout plans.  
+- **TemplateExercise** – Exercises belonging to a workout template with defined sets/reps.  
+- **WorkoutSchedule** – Scheduled workouts displayed in the calendar.  
+- **WorkoutLog** – Completed workout sessions.  
+- **LoggedExercise** and **LoggedSet** – Details of exercises and sets performed during logged workouts.  
+- **ProgressLog** – Tracks progress such as weight or measurements.  
+- **NutritionLog** – Stores daily calorie and macro tracking data.  
+
+### Deployment
+- The production database is hosted on **Supabase (PostgreSQL)**.  
+- Database access credentials are stored securely in environment variables.  
+- Prisma is used for all schema management and queries.  
+- Database connection string: stored in `.env` as `DATABASE_URL`.
+
+### Note
+During development, schema changes were applied using:
+```bash
+npx prisma db push
+
