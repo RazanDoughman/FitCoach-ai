@@ -27,7 +27,7 @@ model User {
 }
 
 model Exercise {
-  id                Int                @id @default(autoincrement())
+  id                Int                @id
   name              String             @unique(map: "exercise_name_unique")
   gifUrl            String?
   bodyPart          String?
@@ -49,6 +49,8 @@ model SavedExercise {
   exerciseId Int?
   exercise   Exercise? @relation(fields: [exerciseId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "SavedExercise_exerciseid_fkey")
   user       User?     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "SavedExercise_userid_fkey")
+
+  @@unique([userId, exerciseId], map: "unique_user_exercise")
 }
 
 model WorkoutTemplate {
@@ -73,8 +75,8 @@ model WorkoutSchedule {
   workoutId Int?
   date      DateTime?        @db.Timestamp(6)
   status    String?          @default("upcoming")
-  color      String?          @default("#3B82F6") 
   note      String?
+  color     String?          @default("#3B82F6")
   user      User?            @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   workout   WorkoutTemplate? @relation(fields: [workoutId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
