@@ -47,6 +47,17 @@ const handler = NextAuth({
     strategy: "jwt",
   },
   secret: process.env.NEXTAUTH_SECRET,
+
+  callbacks: {
+    async redirect({ url, baseUrl }) {
+      // If redirecting to login again, stop and go home
+      if (url.includes("/login")) return baseUrl;
+      // Allow normal relative redirects
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      // Default fallback
+      return baseUrl;
+    },
+  },
 })
 
 export { handler as GET, handler as POST }
