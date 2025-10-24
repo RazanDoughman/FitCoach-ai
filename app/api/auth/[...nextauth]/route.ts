@@ -49,15 +49,20 @@ const handler = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
 
   callbacks: {
-    async redirect({ url, baseUrl }) {
-      // If redirecting to login again, stop and go home
-      if (url.includes("/login")) return baseUrl;
-      // Allow normal relative redirects
-      if (url.startsWith("/")) return `${baseUrl}${url}`;
-      // Default fallback
-      return baseUrl;
-    },
+  async redirect({ url, baseUrl }) {
+    try {
+      const safeUrl = new URL(url, baseUrl);
+      // Prevent infinite redirects to /login or /api/auth/signin
+      if (safeUrl.pathname.includes("/login") || safeUrl.pathname.includes("/signin")) {
+        return baseUrl;
+      }
+      if (safeUrl.origin === baseUrl) return safeUrl.href;
+    } catch {
+      // fallback
+    }
+    return baseUrl;
   },
+},
 })
 
 export { handler as GET, handler as POST }
