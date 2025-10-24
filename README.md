@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FitCoach AI
 
-## Getting Started
+## Overview
+**FitCoach AI** is a web-based fitness application that helps users discover, plan, and track personalized workouts. It combines a modern interface with an intelligent backend to deliver a seamless fitness management experience. The platform enables exercise exploration, workout scheduling, and session tracking — all backed by a robust database and secure authentication system.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Features Overview
+- **User Authentication:** Secure login and registration with session-based management using NextAuth and Supabase.  
+- **Exercise Library:** Browse, search, and filter exercises by body part, target muscle, or equipment.  
+- **Workout Templates:** Create, edit, and save custom workout plans with defined sets, reps, and rest times.  
+- **Workout Scheduler:** Schedule and view workouts in a calendar format with color-coded events.  
+- **AI Workout Suggestions:** Automatically generate personalized workout plans tailored to the user’s fitness goals, training history, and available equipment using machine learning and external API data.
+ 
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Tech Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Layer | Technology |
+|-------|-------------|
+| **Frontend** | Next.js (App Router), TypeScript, Tailwind CSS, ShadCN UI |
+| **Backend** | Next.js API Routes, Prisma ORM |
+| **Database** | Supabase (PostgreSQL) |
+| **Authentication** | NextAuth.js (Credentials Provider) |
+| **Deployment** | Vercel (Frontend & API), Supabase (Database) |
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## Setup Instructions
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 1. Clone the Repository
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+git clone https://github.com/RazanDoughman/FitCoach-ai.git  
+cd FitCoach-ai
 
-## Deploy on Vercel
+### 2. Install Dependencies
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Install all required project dependencies using npm:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**npm install**
+
+#### This command sets up all core packages, including:
+
+- Next.js for frontend rendering and API routes
+- Prisma for database ORM and migrations
+- NextAuth for authentication
+- Tailwind CSS and ShadCN UI for styling and components
+- Supabase client for database interaction
+
+### 3. Configure Environment Variables
+
+Before running the project, create a .env file in the root directory.
+
+| Variables | Service |
+|-------|-------------|
+| Supabase (DATABASE_URL)| Connection string for the database.
+| Supabase (SUPABASE_URL) | Base URL for connecting to the Supabase project. |
+| Supabase(SUPABASE_ANON_KEY) | Publicly available API key for Supabase services. |
+| NextAuth (NEXTAUTH_URL) |Base URL for the application |
+| NextAuth (NEXTAUTH_SECRET) | A secret key used by NextAuth.js for session management and encryption. Must be a long, random string. |
+
+
+### 4. Run Database Migrations
+**npx prisma migrate deploy**
+
+### 5. Start the Development Server
+**npm run dev**
+
+## Visit the application at http://localhost:3000.
+
+---
+
+## Environment Variables & API Keys Needed With Their Services
+
+| Variables | Service |
+|-------|-------------|
+| Supabase (DATABASE_URL)| Connection string for the database.
+| Supabase (SUPABASE_URL) | Base URL for connecting to the Supabase project. |
+| Supabase(SUPABASE_ANON_KEY) | Publicly available API key for Supabase services. |
+| NextAuth (NEXTAUTH_URL) |Base URL for the application |
+| NextAuth (NEXTAUTH_SECRET) | A secret key used by NextAuth.js for session management and encryption. Must be a long, random string. |
+
+
+---
