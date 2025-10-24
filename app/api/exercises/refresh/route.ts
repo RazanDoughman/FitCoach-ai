@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabaseClient";
 import type { ExerciseAPIItem } from "@/lib/types";
 
 export async function POST() {
-  const all = await fetchExercisesFromAPI({ limit: 500 });
+const all = await fetchExercisesFromAPI();
 
   const list: ExerciseAPIItem[] = Array.isArray(all) ? (all as ExerciseAPIItem[]) : [];
 
