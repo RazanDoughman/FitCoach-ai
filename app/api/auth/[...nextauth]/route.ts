@@ -47,6 +47,8 @@ const handler = NextAuth({
     strategy: "jwt",
   },
   secret: process.env.NEXTAUTH_SECRET,
+  // @ts-expect-error NextAuth runtime option
+  trustHost: true,
 
   callbacks: {
   async redirect({ url, baseUrl }) {
