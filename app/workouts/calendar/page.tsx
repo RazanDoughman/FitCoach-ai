@@ -122,6 +122,10 @@ async function saveWorkoutStatus() {
         <p className="text-gray-200 mt-2 text-sm sm:text-base">
           Plan, track, and reflect on your weekly workouts.
         </p>
+        <p className="text-center text-lg text-secondary mb-8">
+        Select any date on the calendar, then choose a workout from the bar below
+      </p>
+
       </div>
 
       {/* ---------- Top Selection Bar ---------- */}
