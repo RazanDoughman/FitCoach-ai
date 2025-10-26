@@ -27,7 +27,7 @@ model User {
 }
 
 model Exercise {
-  id                Int                @id
+  id                Int                @id @default(autoincrement())
   name              String             @unique(map: "exercise_name_unique")
   gifUrl            String?
   bodyPart          String?
