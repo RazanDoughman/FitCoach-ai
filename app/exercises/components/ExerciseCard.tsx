@@ -36,7 +36,7 @@ export default function ExerciseCard({
       onClick={onClick}
     >
       <img
-        src={exercise.gifUrl || "https://via.placeholder.com/150"}
+        src={exercise.gifUrl ||"/static/dumbbell.png"}
         alt={exercise.name}
         className="rounded-md w-full h-40 object-cover"
       />

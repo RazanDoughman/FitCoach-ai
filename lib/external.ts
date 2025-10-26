@@ -50,10 +50,6 @@ export async function fetchExercisesFromAPI(): Promise<ExerciseAPIItem[]> {
   }
 }
 
-
-
-
-
 export async function nutritionSearchInstant(query: string) {
   const base = process.env.NUTRITIONIX_BASE_URL!;
   const headers = {

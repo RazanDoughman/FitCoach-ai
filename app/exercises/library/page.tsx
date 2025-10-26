@@ -79,7 +79,7 @@ export default function ExerciseLibraryPage() {
     });
 
     setFilteredExercises(results);
-    setVisibleCount(20); // reset pagination when filters change
+    setVisibleCount(20); 
   }, [search, filters, exercises]);
 
   async function ensureExerciseExists(exercise: Exercise) {
@@ -286,12 +286,16 @@ export default function ExerciseLibraryPage() {
       </h2>
 
       {selectedExercise.gifUrl && (
-        <img
+        <video
           src={selectedExercise.gifUrl}
-          alt={selectedExercise.name}
-          className="w-full h-64 object-cover rounded mb-3"
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-64 object-contain rounded mb-3 bg-gray-100"
         />
       )}
+
 
       <div className="space-y-2 text-sm">
         <p><strong>Body Part:</strong> {selectedExercise.bodyPart || "N/A"}</p>

@@ -5,10 +5,17 @@ const nextConfig: NextConfig = {
     return config;
   },
   experimental: {
-    // 👇 disable Turbopack entirely
     turbo: {
       rules: {},
     },
+  },
+    images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "v1.exercisedb.dev", 
+      },
+    ],
   },
 };
 
