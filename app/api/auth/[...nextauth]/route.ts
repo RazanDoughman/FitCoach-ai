@@ -54,7 +54,7 @@ export const authOptions: NextAuthOptions = {
   // @ts-expect-error NextAuth runtime option
   trustHost: true,
 
-  callbacks: {
+ /*  callbacks: {
     async redirect({
       url,
       baseUrl,
@@ -63,9 +63,8 @@ export const authOptions: NextAuthOptions = {
       baseUrl: string;
     }): Promise<string> {
       try {
-        const safeUrl = new URL(url, baseUrl);
+        const safeUrl = new URL(url, baseUrl);  
 
-        // prevent infinite loop between login/signin
         if (
           safeUrl.pathname.includes("/login") ||
           safeUrl.pathname.includes("/signin")
@@ -80,7 +79,7 @@ export const authOptions: NextAuthOptions = {
 
       return baseUrl;
     },
-  },
+  }, */
 };
 
 // ✅ Create the NextAuth handler using the same options
