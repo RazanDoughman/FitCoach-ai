@@ -40,7 +40,7 @@ export async function DELETE(
 
   const { error } = await supabase
     .from("WorkoutSchedule")
-    .delete()
+    .delete() 
     .eq("id", id);
 
   if (error) {
