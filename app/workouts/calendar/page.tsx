@@ -11,7 +11,7 @@ interface WorkoutTemplate {
   id: number;
   name: string;
 }
-interface CalendarEvent {
+interface CalendarEvent { 
   id: string;
   title: string;
   start: string;
@@ -122,10 +122,14 @@ async function saveWorkoutStatus() {
         <p className="text-gray-200 mt-2 text-sm sm:text-base">
           Plan, track, and reflect on your weekly workouts.
         </p>
+      </div>
+      <div className="text-center mb-8 mt-6 bg-black/40 backdrop-blur-md p-4 rounded-xl shadow-md">
         <p className="text-center text-lg text-secondary mb-8">
-        Select any date on the calendar, then choose a workout from the bar below
+        Select any date on the calendar, then choose a workout from the bar below 
       </p>
-
+      <p  className="text-center text-lg text-accent mb-8">
+        Note that:  You can only update the status after this workout date
+      </p>
       </div>
 
       {/* ---------- Top Selection Bar ---------- */}

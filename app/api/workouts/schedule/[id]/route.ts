@@ -1,25 +1,52 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { supabase } from "@/lib/supabaseClient";
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(
+  req: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  const { id } = await context.params;
   const { status, note } = await req.json();
 
   const color =
     status === "completed"
-      ? "#10B981"
+      ? "#10B981" // green
       : status === "failed"
-      ? "#EF4444"
-      : "#FACC15"; // yellow = skipped
+      ? "#EF4444" // red
+      : status === "skipped"
+      ? "#FACC15" // yellow
+      : "#3B82F6"; // default blue
 
-  const updated = await prisma.workoutSchedule.update({
-    where: { id: Number(params.id) },
-    data: { status, note, color },
-  });
+  const { data, error } = await supabase
+    .from("WorkoutSchedule")
+    .update({ status, note, color })
+    .eq("id", id)
+    .select()
+    .single();
 
-  return NextResponse.json(updated);
+  if (error) {
+    console.error("Supabase update error:", error.message);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json(data);
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
-  await prisma.workoutSchedule.delete({ where: { id: Number(params.id) } });
+export async function DELETE(
+  req: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  const { id } = await context.params;
+
+  const { error } = await supabase
+    .from("WorkoutSchedule")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.error("Supabase delete error:", error.message);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
   return NextResponse.json({ success: true });
 }
