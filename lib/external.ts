@@ -70,6 +70,29 @@ export async function fetchExercisesFromAPI(): Promise<ExerciseAPIItem[]> {
   }
 }
 
+export async function nutritionSearchInstant(query: string) {
+  const base = process.env.NUTRITIONIX_BASE_URL!;
+  const headers = {
+    "x-app-id": process.env.NUTRITIONIX_APP_ID!,
+    "x-app-key": process.env.NUTRITIONIX_API_KEY!,
+  };
+
+  const url = `${base}/search/instant?query=${encodeURIComponent(query)}`;
+
+  try {
+    const res = await fetch(url, { headers });
+    if (!res.ok) {
+      console.error(`❌ Nutritionix instant search failed: ${res.statusText}`);
+      return { error: `Request failed: ${res.status}` };
+    }
+    return await res.json();
+  } catch (err) {
+    console.error("❌ Error calling Nutritionix instant search:", err);
+    return { error: "Network or server error" };
+  }
+}
+
+
 export async function nutritionNatural(text: string) {
   const base = process.env.NUTRITIONIX_BASE_URL!;
   const headers = {
