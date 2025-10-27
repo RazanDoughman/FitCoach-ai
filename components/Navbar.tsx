@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
+
 export default function Navbar() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
@@ -50,53 +51,62 @@ export default function Navbar() {
         </Link>
 
         {/* Nav Links */}
-          {isLanding ? (
-            <div className="hidden sm:flex gap-6 text-sm font-medium"></div>
-          ) : (
-            <div className="flex items-center gap-6 text-sm font-medium text-white">
-              <Link
-                href="/dashboard"
-                className={`hover:text-green-500 ${
-                  pathname === "/dashboard" ? "text-green-500" : "text-white"
-                }`}
-              >
-                Dashboard
-              </Link>
-              <Link
-                href="/workouts"
-                className={`hover:text-green-500 ${
-                  pathname.startsWith("/workouts") ? "text-green-500" : "text-white"
-                }`}
-              >
-                Workouts
-              </Link>
-              <Link
-                href="/exercises"
-                className={`hover:text-green-500 ${
-                  pathname.startsWith("/exercises") ? "text-green-500" : "text-white"
-                }`}
-              >
-                Exercises
-              </Link>
-              <Link
-                href="/progress"
-                className={`hover:text-green-500 ${
-                  pathname.startsWith("/progress") ? "text-green-500" : "text-white"
-                }`}
-              >
-                Progress
-              </Link>
-
-              {isLoggedIn && (
+        {!isLanding && (
+          <div className="flex items-center gap-6 text-sm font-medium text-white">
+            {isLoggedIn ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  className={`hover:text-green-500 ${
+                    pathname === "/dashboard" ? "text-green-500" : "text-white"
+                  }`}
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  href="/workouts"
+                  className={`hover:text-green-500 ${
+                    pathname.startsWith("/workouts")
+                      ? "text-green-500"
+                      : "text-white"
+                  }`}
+                >
+                  Workouts
+                </Link>
+                <Link
+                  href="/exercises"
+                  className={`hover:text-green-500 ${
+                    pathname.startsWith("/exercises")
+                      ? "text-green-500"
+                      : "text-white"
+                  }`}
+                >
+                  Exercises
+                </Link>
+                <Link
+                  href="/progress"
+                  className={`hover:text-green-500 ${
+                    pathname.startsWith("/progress")
+                      ? "text-green-500"
+                      : "text-white"
+                  }`}
+                >
+                  Progress
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-full font-semibold text-white text-xs transition"
                 >
                   Log Out
                 </button>
-              )}
-            </div>
-          )}
+              </>
+            ) : (
+              <>
+              
+              </>
+            )}
+          </div>
+        )}
       </div>
     </motion.nav>
   );

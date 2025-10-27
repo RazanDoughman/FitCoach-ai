@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import ExerciseCard from "../components/ExerciseCard";
 
 
+
 interface Exercise {
   id: number;
   name: string;
@@ -18,7 +19,6 @@ interface Exercise {
 }
 
 export default function ExerciseLibraryPage() {
-  const router = useRouter();
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [filteredExercises, setFilteredExercises] = useState<Exercise[]>([]);
   const [search, setSearch] = useState("");
@@ -30,6 +30,14 @@ export default function ExerciseLibraryPage() {
   const [visibleCount, setVisibleCount] = useState(20); // how many to show
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
 
+  const router = useRouter();
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    if (!user.email) {
+      router.push("/login");
+    }
+  }, [router]);
 
   // 🔹 Fetch all exercises from API (1300+)
   useEffect(() => {

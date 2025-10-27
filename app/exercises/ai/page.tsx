@@ -4,12 +4,23 @@ import { useState } from "react";
 import { aiFormTips } from "@/lib/external";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function ExerciseAiTipsPage() {
   const [exerciseName, setExerciseName] = useState("");
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    if (!user.email) {
+      router.push("/login");
+    }
+  }, [router]);
 
   const exampleQuestions = [
     "How do I improve my squat form?",

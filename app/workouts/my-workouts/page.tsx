@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
+import { useRouter } from "next/navigation";
+
 
 interface Exercise {
   exercise: string;
@@ -108,6 +110,16 @@ export default function MyWorkoutsPage() {
   const [loading, setLoading] = useState(true);
   const [selectedWorkout, setSelectedWorkout] =
     useState<WorkoutTemplate | null>(null);
+
+    const router = useRouter();
+      
+        useEffect(() => {
+          const user = JSON.parse(localStorage.getItem("user") || "{}");
+          if (!user.email) {
+            router.push("/login"); // redirect if not logged in
+            return;
+          }
+        }, [router]);
 
   useEffect(() => {
     async function fetchWorkouts() {

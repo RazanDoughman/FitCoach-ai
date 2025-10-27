@@ -6,6 +6,7 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { Button } from "@/components/ui/button";
 import type { EventClickArg } from "@fullcalendar/core";
+import { useRouter } from "next/navigation";
 
 interface WorkoutTemplate {
   id: number;
@@ -27,6 +28,16 @@ export default function WorkoutCalendar() {
   const [editEvent, setEditEvent] = useState<CalendarEvent | null>(null);
   const [status, setStatus] = useState("completed");
   const [note, setNote] = useState("");
+
+  const router = useRouter();
+  
+    useEffect(() => {
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      if (!user.email) {
+        router.push("/login"); // redirect if not logged in
+        return;
+      }
+    }, [router]);
 
   async function fetchData() {
     const e = await fetch("/api/workouts/schedule").then((r) => r.json());

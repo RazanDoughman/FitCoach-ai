@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useRouter } from "next/navigation";
 
 interface SavedExercise {
   id: number;
@@ -21,6 +22,16 @@ export default function SavedExercisesPage() {
   const [savedExercises, setSavedExercises] = useState<SavedExercise[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedExercise, setSelectedExercise] = useState<SavedExercise | null>(null);
+
+  const router = useRouter();
+  
+    useEffect(() => {
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      if (!user.email) {
+        router.push("/login");
+      }
+    }, [router]);
+
 
   useEffect(() => {
     async function fetchSavedExercises() {

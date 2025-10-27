@@ -3,8 +3,21 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function ExercisesPage() {
+  
+  const router = useRouter();
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    if (!user.email) {
+      router.push("/login"); // redirect if not logged in
+      return;
+    }
+  }, [router]);
+
   const cards = [
     {
       title: "Exercise Library",

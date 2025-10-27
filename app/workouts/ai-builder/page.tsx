@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 type AIExercise = {
   exercise: string;
@@ -14,6 +16,17 @@ type AIExercise = {
 
 
 export default function AIWorkoutBuilderPage() {
+
+  const router = useRouter();
+  
+    useEffect(() => {
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      if (!user.email) {
+        router.push("/login"); // redirect if not logged in
+        return;
+      }
+    }, [router]);
+    
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AIExercise[]>([]);
   const [error, setError] = useState<string | null>(null);

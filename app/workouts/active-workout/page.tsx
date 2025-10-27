@@ -17,9 +17,18 @@ interface WorkoutTemplate {
 }
 
 export default function ActiveWorkoutsPage() {
-  const router = useRouter();
   const [workouts, setWorkouts] = useState<WorkoutTemplate[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    if (!user.email) {
+      router.push("/login"); // redirect if not logged in
+      return;
+    }
+  }, [router]);
 
   useEffect(() => {
     async function fetchWorkouts() {
