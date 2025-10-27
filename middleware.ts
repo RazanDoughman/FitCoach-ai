@@ -8,3 +8,7 @@ export const config = {
     "/progress/:path*",
   ],
 };
+
+export function middleware() {
+   return;
+   }
