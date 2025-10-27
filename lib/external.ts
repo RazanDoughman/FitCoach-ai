@@ -12,6 +12,7 @@ interface ExerciseAPIItem {
 
 export async function fetchExercisesFromAPI(): Promise<ExerciseAPIItem[]> {
   const base = "https://exercisedb.p.rapidapi.com/exercises";
+  const fallbackBase = "https://exercisedb.dev/api/exercises";
   const headers = {
     "x-rapidapi-key": process.env.EXERCISEDB_API_KEY ?? "",
     "x-rapidapi-host": process.env.EXERCISEDB_API_HOST ?? "",
@@ -26,19 +27,38 @@ export async function fetchExercisesFromAPI(): Promise<ExerciseAPIItem[]> {
       const url = `${base}?limit=${batchSize}&offset=${offset}`;
       const response = await fetch(url, { headers });
 
-      if (!response.ok) {
-        console.error(`❌ Failed at offset ${offset}: ${response.statusText}`);
-        break;
+      // ⚠️ Handle rate limit (429)
+      if (response.status === 429) {
+        console.warn(`⚠️ Rate limit hit at offset ${offset}. Waiting 5 seconds...`);
+        await new Promise(r => setTimeout(r, 5000)); // wait before retry
+        continue; // retry same offset
       }
 
-      const data: ExerciseAPIItem[] = await response.json();
+      // ⚠️ Handle API failure — try fallback endpoint once
+      if (!response.ok) {
+        console.error(`❌ RapidAPI failed at offset ${offset}: ${response.statusText}`);
+        console.warn("➡️ Switching to fallback public endpoint exercisedb.dev...");
+        const fbRes = await fetch(`${fallbackBase}?limit=${batchSize}&offset=${offset}`);
+        if (!fbRes.ok) {
+          console.error(`❌ Fallback also failed: ${fbRes.statusText}`);
+          break;
+        }
+        const fbData: ExerciseAPIItem[] = await fbRes.json();
+        if (!Array.isArray(fbData) || fbData.length === 0) break;
+        allExercises.push(...fbData);
+        offset += batchSize;
+        if (offset > 1500) break;
+        continue;
+      }
 
+      // ✅ Normal response
+      const data: ExerciseAPIItem[] = await response.json();
       if (!Array.isArray(data) || data.length === 0) break;
 
       allExercises.push(...data);
       offset += batchSize;
 
-      // safety stop
+      // Safety stop
       if (offset > 1500) break;
     }
 
@@ -48,16 +68,6 @@ export async function fetchExercisesFromAPI(): Promise<ExerciseAPIItem[]> {
     console.error("❌ Error fetching paginated exercises:", error);
     return [];
   }
-}
-
-export async function nutritionSearchInstant(query: string) {
-  const base = process.env.NUTRITIONIX_BASE_URL!;
-  const headers = {
-    "x-app-id": process.env.NUTRITIONIX_APP_ID!,
-    "x-app-key": process.env.NUTRITIONIX_API_KEY!,
-  };
-  const url = `${base}/search/instant?query=${encodeURIComponent(query)}`;
-  return fetch(url, { headers }).then(r=>r.json());
 }
 
 export async function nutritionNatural(text: string) {
@@ -120,7 +130,7 @@ Return ONLY valid JSON.
 Do NOT include explanations, markdown, or extra text — just the JSON array.
 `;
 
-  const body = { contents: [{ parts: [{ text: prompt }]}] };
+  const body = { contents: [{ parts: [{ text: prompt }] }] };
 
   try {
     const res = await fetch(url, {
@@ -140,22 +150,48 @@ Do NOT include explanations, markdown, or extra text — just the JSON array.
       .replace(/```/g, "")
       .trim();
 
+    let parsed;
     try {
-      return JSON.parse(cleanText);
-    } catch {
-      const jsonMatch = cleanText.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
-      if (jsonMatch) return JSON.parse(jsonMatch[0]);
-      throw new Error("Failed to parse AI JSON output");
+      // Try normal JSON parse first
+      parsed = JSON.parse(cleanText);
+    } catch (err) {
+      // Attempt to recover malformed Gemini JSON
+      console.warn("⚠️ Invalid JSON detected. Attempting cleanup...");
+      let fixed = cleanText
+        .replace(/```json|```/g, "")
+        .replace(/\,(?=\s*[\}\]])/g, "") // remove trailing commas before } or ]
+        .replace(/[\u0000-\u001F]+/g, "") // remove control chars
+        .trim();
+
+      // Try to auto-close unbalanced braces/brackets
+      const openBraces = (fixed.match(/\{/g) || []).length;
+      const closeBraces = (fixed.match(/\}/g) || []).length;
+      const openBrackets = (fixed.match(/\[/g) || []).length;
+      const closeBrackets = (fixed.match(/\]/g) || []).length;
+      if (openBraces > closeBraces) fixed += "}".repeat(openBraces - closeBraces);
+      if (openBrackets > closeBrackets) fixed += "]".repeat(openBrackets - closeBrackets);
+
+      // Find first full JSON array or object
+      const match = fixed.match(/\[[\s\S]*\]|\{[\s\S]*\}/);
+      if (match) fixed = match[0];
+
+      try {
+        parsed = JSON.parse(fixed);
+      } catch (err2) {
+        console.error("❌ Still invalid after cleanup:", fixed);
+        throw new Error("Failed to parse AI JSON output after cleanup");
+      }
     }
+
+    return parsed;
   } catch (err) {
-    console.error("AI generation error:", err);
+    console.error("AI generation error:", err); 
     if (err instanceof Error) {
       return { error: err.message };
     }
     return { error: "Unknown AI generation error" };
   }
 }
-
 
 
 export async function aiFormTips(exerciseName: string, question: string) {
