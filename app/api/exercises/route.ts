@@ -1,41 +1,28 @@
 import { NextResponse } from "next/server";
-import { fetchExercisesFromAPI } from "@/lib/external";
 import { supabase } from "@/lib/supabaseClient";
-import type { ExerciseAPIItem } from "@/lib/types";
 
 export async function GET() {
   try {
-    // 🔹 Fetch everything directly from ExerciseDB
-    const apiItems = await fetchExercisesFromAPI();
-
-    if (!Array.isArray(apiItems) || apiItems.length === 0) {
-      return NextResponse.json({ error: "No exercises found" }, { status: 404 });
-    }
-
-    // 🔹 Clean and map data for Supabase
-    const rows = apiItems.map((e: ExerciseAPIItem) => ({
-      name: e.name,
-      gifUrl: e.gifUrl ?? null,
-      bodyPart: e.bodyPart ?? null,
-      equipment: e.equipment ?? null,
-      target: e.target ?? null,
-      instructions: Array.isArray(e.instructions)
-        ? e.instructions.join(" ")
-        : e.instructions ?? null,
-    }));
-
-    // 🔹 Cache into Supabase
-    const { error } = await supabase
+    // 🧠 Fetch all exercises from your Supabase "Exercise" table
+    const { data, error } = await supabase
       .from("Exercise")
-      .upsert(rows, { onConflict: "name" });
+      .select("*")
+      .order("id", { ascending: true });
 
     if (error) {
-      console.error("Supabase upsert error:", error);
+      console.error("❌ Supabase fetch error:", error);
+      return NextResponse.json({ error: "Failed to fetch exercises" }, { status: 500 });
     }
 
-    return NextResponse.json({ source: "api", items: rows });
+    if (!data || data.length === 0) {
+      console.warn("⚠️ No exercises found in Supabase");
+      return NextResponse.json({ message: "No exercises found" }, { status: 404 });
+    }
+
+    console.log(`✅ Successfully fetched ${data.length} exercises from Supabase`);
+    return NextResponse.json(data, { status: 200 });
   } catch (err) {
-    console.error("Error fetching exercises:", err);
-    return NextResponse.json({ error: "Failed to fetch exercises" }, { status: 500 });
+    console.error("❌ Unexpected error fetching exercises:", err);
+    return NextResponse.json({ error: "Unexpected server error" }, { status: 500 });
   }
 }
